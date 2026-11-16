@@ -5,7 +5,7 @@
 TRUCIO is a minimal, privacy-first web application for inspecting suspicious messages, lookalike URLs, UPI/payment prompts, and screenshots—tailored for digital fraud patterns across **India and APAC**.
 
 It operates on a **Dual Analysis Engine** architecture inspired by independent local vs. cloud processing:
-- **AI Mode (Server-Side Gemini — Default):** Contextual language and screenshot analysis powered securely through Express (`POST /api/analyze`) or Vercel Serverless (`/api/analyze`) using `GEMINI_API_KEY`, returning schema-validated explanations, entity extraction, and protective actions.
+- **AI Mode (Server-Side  — Default):** Contextual language and screenshot analysis powered securely through Express (`POST /api/analyze`) or Vercel Serverless (`/api/analyze`) using `{AI}_API_KEY`, returning schema-validated explanations, entity extraction, and protective actions.
 - **Local Mode (Offline NLP Engine):** 100% deterministic browser-side text normalization, tokenisation, contextual negation handling, weighted multi-signal scoring, and entity extraction. Zero network requests; submitted text never leaves your device.
 
 > **Advisory Disclaimer:** Both Local Mode and AI Mode surface behavioral risk indicators, extracted identifiers, and practical safety steps. Neither engine guarantees safety or performs live bank KYC, RDAP/WHOIS, or telecom caller verification without dedicated external feeds.
@@ -37,14 +37,14 @@ It operates on a **Dual Analysis Engine** architecture inspired by independent l
 
 ## Dual Analysis Engine: Local Mode vs. AI Mode
 
-| Capability | Local Mode (`Offline NLP`) | AI Mode (`Gemini`) |
+| Capability | Local Mode (`Offline NLP`) | AI Mode (``) |
 | --- | --- | --- |
 | **Execution Environment** | 100% client-side in browser (`src/engine/local/`) | Server-side Express proxy (`server.ts` -> `/api/analyze`) |
-| **Internet / API Key Required** | **No** — runs offline with zero network calls | **Yes** — requires `GEMINI_API_KEY` on server |
-| **Privacy Guarantee** | Submitted text never leaves your device | Sent only to server proxy & Gemini API (not published) |
+| **Internet / API Key Required** | **No** — runs offline with zero network calls | **Yes** — requires `_API_KEY` on server |
+| **Privacy Guarantee** | Submitted text never leaves your device | Sent only to server proxy &  API (not published) |
 | **Detection Approach** | Unicode/leetspeak normalization, sentence segmentation, context-aware negation & advisory damping, 15 modular weighted signal rules, entity extraction | Full contextual reasoning across multi-turn chats, nuanced manipulation, and visual UI clues |
 | **Screenshot / Image Inspection** | Image-only submissions report insufficient textual signal and advise switching to AI Mode | Multimodal inspection of uploaded or pasted screenshots (`PNG`/`JPG`/`WEBP`) |
-| **Output Transparency** | Explicitly labeled `Local Offline NLP Engine` with non-probabilistic heuristic rule weight breakdown | Explicitly labeled `AI Contextual Analysis (Gemini)` with schema-validated findings |
+| **Output Transparency** | Explicitly labeled `Local Offline NLP Engine` with non-probabilistic heuristic rule weight breakdown | Explicitly labeled `AI Contextual Analysis ()` with schema-validated findings |
 | **Smart Fallback** | Always available independently | On missing key, `429` quota limit, network failure, or invalid JSON, UI prompts to **Retry AI Mode** or **Switch to Local Mode & Check Offline** |
 
 ---
@@ -77,7 +77,7 @@ It operates on a **Dual Analysis Engine** architecture inspired by independent l
 │   ├── _lib/
 │   │   ├── domainLookup.ts          # SSRF-safe DNS-over-HTTPS & RDAP registry lookup
 │   │   ├── env.ts                   # Environment variable sanitization & key check
-│   │   └── geminiAnalyze.ts         # Shared Gemini analyzer with schema validation & model fallback
+│   │   └── Analyze.ts         # Shared  analyzer with schema validation & model fallback
 │   ├── analyze.ts                   # Vercel Serverless Function for POST /api/analyze (AI Mode)
 │   ├── domain-lookup.ts             # Vercel Serverless Function for GET /api/domain-lookup (Live DNS & RDAP)
 │   └── health.ts                    # Vercel Serverless Function for GET /api/health
@@ -128,10 +128,10 @@ cp .env.example .env.local
 Edit `.env.local`:
 ```env
 # Required only for AI Mode (Local Mode works completely offline without this key)
-GEMINI_API_KEY="your-gemini-api-key"
+_API_KEY="your--api-key"
 
-# Optional Gemini API model override
-GEMINI_MODEL="gemini-2.5-flash"
+# Optional  API model override
+_MODEL="-2.5-flash"
 
 PORT=3000
 APP_URL="http://localhost:3000"
@@ -167,16 +167,16 @@ TRUCIO includes ready-to-deploy Vercel Serverless Functions (`api/analyze.ts`, `
 1. Push the repository to GitHub (confirm `.env.local` and `.aistudio/` are ignored).
 2. Import the repository in **Vercel** (`vercel.json` automatically configures `npm run build`, `dist/` output, 30s AI timeout, and SPA rewrites that never intercept `/api/*` or `/assets/*`).
 3. In **Vercel Project Settings → Environment Variables**, add:
-   - `GEMINI_API_KEY` = your Google Gemini API key
-   - `GEMINI_MODEL` = `gemini-2.5-flash` *(optional — if omitted, the server automatically falls back to `gemini-2.5-flash` when used with a standard Google Gemini API key)*
-4. **Redeploy after saving environment variables:** Vercel injects new or edited Environment Variables only into new deployments—if you added `GEMINI_API_KEY` after deploying, open **Deployments → Redeploy** on Vercel so your serverless functions pick it up.
-5. **Deploying without an API key:** AI Mode stays selected as the default mode; if `GEMINI_API_KEY` is omitted or not yet redeployed, `EngineModeToggle` indicates the server state and submitting offers a 1-click prompt to switch directly to offline **Local Mode**.
+   - `_API_KEY` = your Google  API key
+   - `_MODEL` = `-2.5-flash` *(optional — if omitted, the server automatically falls back to `-2.5-flash` when used with a standard Google  API key)*
+4. **Redeploy after saving environment variables:** Vercel injects new or edited Environment Variables only into new deployments—if you added `_API_KEY` after deploying, open **Deployments → Redeploy** on Vercel so your serverless functions pick it up.
+5. **Deploying without an API key:** AI Mode stays selected as the default mode; if `_API_KEY` is omitted or not yet redeployed, `EngineModeToggle` indicates the server state and submitting offers a 1-click prompt to switch directly to offline **Local Mode**.
 
 ---
 
 ## Security & Detection Limitations
 
-- **Zero Client Secret Exposure:** `GEMINI_API_KEY` and `@google/genai` exist strictly in `server.ts`. Vite never bundles server secrets into `src/`.
+- **Zero Client Secret Exposure:** `_API_KEY` and `@google/genai` exist strictly in `server.ts`. Vite never bundles server secrets into `src/`.
 - **Heuristic Limitations:** Local Mode relies on deterministic pattern rules and NLP heuristics; novel phrasing, image-only screenshots, and obfuscated social engineering may not match offline rules. Never treat a `Low-Signal Indicators` output as proof that a message is safe.
 - **No Uncalibrated Accuracy Claims:** `npm run eval` tests our 24 synthetic fictional scenarios (covering obvious scams, sophisticated traps, legitimate bank OTP alerts, genuine recruiter outreach, legitimate P2P transfers, normal chats, ambiguous messages, and Hinglish/leetspeak obfuscation) to catch false positives and regressions—it is not a population-wide statistical benchmark.
 - **Browser-Local Storage:** Mode preferences, recent check history, custom Intel cards, Safety checklist progress, and incident drafts reside in `localStorage` on your device.
