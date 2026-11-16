@@ -6,7 +6,7 @@ LEGITCHECK is a minimal, privacy-first web application for inspecting suspicious
 
 It operates on a **Dual Analysis Engine** architecture inspired by independent local vs. cloud processing:
 - **Local Mode (Offline NLP Engine):** 100% deterministic browser-side text normalization, tokenisation, contextual negation handling, weighted multi-signal scoring, and entity extraction. Zero network requests; submitted text never leaves your device.
-- **AI Mode (Server-Side Gemini):** Contextual language and screenshot analysis powered securely through Express (`POST /api/analyze`) using `API_KEY`, returning schema-validated explanations, entity extraction, and protective actions.
+- **AI Mode (Server-Side ):** Contextual language and screenshot analysis powered securely through Express (`POST /api/analyze`) using `API_KEY`, returning schema-validated explanations, entity extraction, and protective actions.
 
 > **Advisory Disclaimer:** Both Local Mode and AI Mode surface behavioral risk indicators, extracted identifiers, and practical safety steps. Neither engine guarantees safety or performs live bank KYC, RDAP/WHOIS, or telecom caller verification without dedicated external feeds.
 
@@ -37,14 +37,14 @@ It operates on a **Dual Analysis Engine** architecture inspired by independent l
 
 ## Dual Analysis Engine: Local Mode vs. AI Mode
 
-| Capability | Local Mode (`Offline NLP`) | AI Mode (`Gemini`) |
+| Capability | Local Mode (`Offline NLP`) | AI Mode (`AI`) |
 | --- | --- | --- |
 | **Execution Environment** | 100% client-side in browser (`src/engine/local/`) | Server-side Express proxy (`server.ts` -> `/api/analyze`) |
 | **Internet / API Key Required** | **No** — runs offline with zero network calls | **Yes** — requires `API_KEY` on server |
-| **Privacy Guarantee** | Submitted text never leaves your device | Sent only to server proxy & Gemini API (not published) |
+| **Privacy Guarantee** | Submitted text never leaves your device | Sent only to server proxy &  API (not published) |
 | **Detection Approach** | Unicode/leetspeak normalization, sentence segmentation, context-aware negation & advisory damping, 15 modular weighted signal rules, entity extraction | Full contextual reasoning across multi-turn chats, nuanced manipulation, and visual UI clues |
 | **Screenshot / Image Inspection** | Image-only submissions report insufficient textual signal and advise switching to AI Mode | Multimodal inspection of uploaded or pasted screenshots (`PNG`/`JPG`/`WEBP`) |
-| **Output Transparency** | Explicitly labeled `Local Offline NLP Engine` with non-probabilistic heuristic rule weight breakdown | Explicitly labeled `AI Contextual Analysis (Gemini)` with schema-validated findings |
+| **Output Transparency** | Explicitly labeled `Local Offline NLP Engine` with non-probabilistic heuristic rule weight breakdown | Explicitly labeled `AI Contextual Analysis ()` with schema-validated findings |
 | **Smart Fallback** | Always available independently | On missing key, `429` quota limit, network failure, or invalid JSON, UI prompts to **Retry AI Mode** or **Switch to Local Mode & Check Offline** |
 
 ---
@@ -57,7 +57,7 @@ It operates on a **Dual Analysis Engine** architecture inspired by independent l
 - **Safety & Recovery Centre:** Actionable containment playbooks emphasizing **India 1930** (`cybercrime.gov.in`) alongside APAC helplines (`SG 1799`, `MY 997`, `HK 18222`, Scamwatch AU).
 - **Interactive Scam Lab:** Spot-the-scam exercises, quick quizzes, Myth vs Fact cards, and shareable family safety reminders.
 - **Technical Tools Workspace (Lazy-Loaded):** Local URL/domain structure inspection, SMTP header parser, bulk line screener, side-by-side comparison, and saved investigations.
-- **Local Incident Reporting:** 6-step structured incident builder saved to browser `localStorage` with JSON export and explicit notices that entries are not transmitted to law enforcement.
+- **Local Incident Reporting:** 6-step structured incident builder saved to browser `localStorage` with JSON export and explicit notices that entries are not transmitted to law enforcement. (With help of AI)
 
 ---
 
@@ -119,10 +119,10 @@ cp .env.example .env.local
 Edit `.env.local`:
 ```env
 # Required only for AI Mode (Local Mode works completely offline without this key)
-API_KEY="your-gemini-api-key"
+API_KEY="your--api-key"
 
-# Optional Gemini API model override
-GEMINI_MODEL="gemini-2.5-flash"
+# Optional  API model override
+_MODEL="-2.5-flash"
 
 PORT=3000
 APP_URL="http://localhost:3000"
@@ -148,22 +148,6 @@ npm run eval
 npm run build
 npm start
 ```
-
----
-
-## Deploying to Vercel
-
-LEGITCHECK runs an Express backend (`server.ts`) alongside the Vite client bundle (`dist/`) so `API_KEY` stays strictly on the server:
-
-1. Push the repository to GitHub (confirm `.env.local` is ignored and never committed).
-2. Import the repository in **Vercel**:
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-   - **Entrypoint / Express Server:** Vercel supports Express servers (`server.ts`) natively when configured as the Node/Express entrypoint, or you can deploy `/api/analyze` & `/api/health` as Vercel Functions paired with the `dist/` build.
-3. In **Vercel Project Settings → Environment Variables**, add:
-   - `API_KEY` = your Google Gemini API key
-   - `GEMINI_MODEL` = `gemini-2.5-flash` (recommended for production)
-4. **Deploying without an API key:** If `API_KEY` is omitted, `GET /api/health` reports `geminiConfigured: false`. LEGITCHECK automatically defaults first-time visitors to **Local Mode**, and selecting **AI Mode** cleanly prompts users to switch back to offline Local Mode instead of failing silently.
 
 ---
 
