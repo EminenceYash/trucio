@@ -1,0 +1,6 @@
+{
+  "name": "LEGITCHECK",
+  "description": "Digital scam intelligence, detection, reporting, and protection platform for India and APAC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
