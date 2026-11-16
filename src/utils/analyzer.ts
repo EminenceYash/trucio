@@ -1,6 +1,6 @@
 import { runLocalNlpDetection } from '../engine/local/engine';
 import { SHORTENER_DOMAINS, SUSPICIOUS_TLDS } from '../engine/local/entities';
-import { AnalysisResult, AnalysisSubmission } from '../types/legitcheck';
+import { AnalysisResult, AnalysisSubmission } from '../types/trucio';
 
 const BRAND_LURES = [
   'sbi',
@@ -183,7 +183,7 @@ export function inspectDomainStructure(rawInput: string): {
       flags.push('Recognizable brand keyword appears inside a hyphenated or compound domain.');
     }
     if (flags.length === 0) {
-      flags.push('No structural syntax anomalies detected. Domain registration age & live blocklists require external API integration.');
+      flags.push('No structural syntax anomalies detected locally. Use Check Live DNS & RDAP to query public records.');
     }
 
     return {

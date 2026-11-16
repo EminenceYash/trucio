@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
-import { ToastMessage } from '../../types/legitcheck';
+import { ToastMessage } from '../../types/trucio';
 
 interface ToastContainerProps {
   toasts: ToastMessage[];

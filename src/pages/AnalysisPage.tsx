@@ -19,12 +19,13 @@ import {
   AnalysisSubmission,
   AppRoute,
   CheckMode,
-} from '../types/legitcheck';
+} from '../types/trucio';
 import { CautionIndicator } from '../components/ui/StatusBadge';
 import { EngineModeToggle } from '../components/ui/EngineModeToggle';
 import { QuickVerdictCard } from '../features/home/QuickVerdictCard';
 import { AiFailureCard } from '../features/home/AiFailureCard';
 import { Button } from '../components/ui/Button';
+import { prepareScreenshotUpload } from '../utils/imageResize';
 
 interface AnalysisPageProps {
   activeMode: CheckMode;
@@ -114,21 +115,26 @@ export function AnalysisPage({
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     setErrorMsg(null);
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
       setErrorMsg('Upload a PNG, JPG, or WEBP image.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Image must be under 10 MB.');
+      return;
+    }
+    try {
+      const prepared = await prepareScreenshotUpload(file);
       setFileData({
-        name: file.name,
-        mimeType: file.type,
-        base64: typeof reader.result === 'string' ? reader.result : '',
+        name: prepared.name,
+        mimeType: prepared.mimeType,
+        base64: prepared.base64,
       });
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setErrorMsg('Could not read the selected image.');
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {

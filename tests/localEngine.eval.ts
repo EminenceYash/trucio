@@ -1,10 +1,10 @@
 /**
- * Evaluation dataset & runner for LEGITCHECK's offline Local Mode detection engine.
+ * Evaluation dataset & runner for TRUCIO's offline Local Mode detection engine.
  * Kept strictly separate from production detection rules in src/engine/local/.
  */
 
 import { runLocalNlpDetection } from '../src/engine/local/engine';
-import { CautionLevel, CheckMode, ScamCategory } from '../src/types/legitcheck';
+import { CautionLevel, CheckMode, ScamCategory } from '../src/types/trucio';
 
 export interface EvalCase {
   id: string;
@@ -250,7 +250,7 @@ export const EVALUATION_DATASET: EvalCase[] = [
 let passed = 0;
 let failed = 0;
 
-console.log(`\nRunning LEGITCHECK Local Mode Evaluation (${EVALUATION_DATASET.length} cases)\n`);
+console.log(`\nRunning TRUCIO Local Mode Evaluation (${EVALUATION_DATASET.length} cases)\n`);
 
 for (const tc of EVALUATION_DATASET) {
   const result = runLocalNlpDetection({

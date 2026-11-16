@@ -1,4 +1,4 @@
-import { LabScenario, MythFactItem, QuizQuestion } from '../types/legitcheck';
+import { LabScenario, MythFactItem, QuizQuestion } from '../types/trucio';
 
 export const LAB_SCENARIOS: LabScenario[] = [
   {

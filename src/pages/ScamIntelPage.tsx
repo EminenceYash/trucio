@@ -6,7 +6,7 @@ import {
   IntelCategory,
   IntelVerificationStatus,
   ScamReport,
-} from '../types/legitcheck';
+} from '../types/trucio';
 import { VerificationLabel } from '../components/ui/StatusBadge';
 import { Modal } from '../components/ui/Modal';
 

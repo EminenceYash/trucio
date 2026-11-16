@@ -6,7 +6,7 @@ import {
   LocalScoreBreakdown,
   ScamCategory,
   WarningIndicator,
-} from '../../types/legitcheck';
+} from '../../types/trucio';
 import { extractEntitiesAndUrlSignals } from './entities';
 import { hasNegationAroundMatch, prepareNlpDocument } from './nlp';
 import { SCAM_CATEGORY_LABELS, SIGNAL_RULES, SignalRule } from './rules';

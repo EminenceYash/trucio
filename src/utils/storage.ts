@@ -4,17 +4,29 @@ import {
   LabProgress,
   SavedInvestigation,
   ScamReport,
-} from '../types/legitcheck';
+} from '../types/trucio';
 
-const REPORTS_KEY = 'legitcheck_reports_v1';
-const INVESTIGATIONS_KEY = 'legitcheck_investigations_v1';
-const LAB_PROGRESS_KEY = 'legitcheck_lab_progress_v1';
-const RECENT_ANALYSES_KEY = 'legitcheck_recent_analyses_v1';
-const ENGINE_MODE_KEY = 'legitcheck_engine_mode_v1';
+const REPORTS_KEY = 'trucio_reports_v1';
+const INVESTIGATIONS_KEY = 'trucio_investigations_v1';
+const LAB_PROGRESS_KEY = 'trucio_lab_progress_v1';
+const RECENT_ANALYSES_KEY = 'trucio_recent_analyses_v1';
+const ENGINE_MODE_KEY = 'trucio_engine_mode_v1';
+
+const LEGACY_KEYS = {
+  reports: 'legitcheck_reports_v1',
+  investigations: 'legitcheck_investigations_v1',
+  labProgress: 'legitcheck_lab_progress_v1',
+  recentAnalyses: 'legitcheck_recent_analyses_v1',
+  engineMode: 'legitcheck_engine_mode_v1',
+};
+
+function readItemWithFallback(key: string, legacyKey: string): string | null {
+  return localStorage.getItem(key) ?? localStorage.getItem(legacyKey);
+}
 
 export function loadSavedEngineMode(): AnalysisEngineMode | null {
   try {
-    const raw = localStorage.getItem(ENGINE_MODE_KEY);
+    const raw = readItemWithFallback(ENGINE_MODE_KEY, LEGACY_KEYS.engineMode);
     return raw === 'local' || raw === 'ai' ? raw : null;
   } catch {
     return null;
@@ -45,7 +57,7 @@ export function redactSensitiveInfo(raw: string): string {
 
 export function loadRecentAnalyses(): AnalysisResult[] {
   try {
-    const raw = localStorage.getItem(RECENT_ANALYSES_KEY);
+    const raw = readItemWithFallback(RECENT_ANALYSES_KEY, LEGACY_KEYS.recentAnalyses);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -88,7 +100,7 @@ export function clearRecentAnalyses(): AnalysisResult[] {
 
 export function loadReports(): ScamReport[] {
   try {
-    const raw = localStorage.getItem(REPORTS_KEY);
+    const raw = readItemWithFallback(REPORTS_KEY, LEGACY_KEYS.reports);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -120,7 +132,7 @@ export function deleteReport(id: string): ScamReport[] {
 
 export function loadInvestigations(): SavedInvestigation[] {
   try {
-    const raw = localStorage.getItem(INVESTIGATIONS_KEY);
+    const raw = readItemWithFallback(INVESTIGATIONS_KEY, LEGACY_KEYS.investigations);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -161,7 +173,7 @@ const DEFAULT_LAB_PROGRESS: LabProgress = {
 
 export function loadLabProgress(): LabProgress {
   try {
-    const raw = localStorage.getItem(LAB_PROGRESS_KEY);
+    const raw = readItemWithFallback(LAB_PROGRESS_KEY, LEGACY_KEYS.labProgress);
     if (!raw) return DEFAULT_LAB_PROGRESS;
     const parsed = JSON.parse(raw);
     return {

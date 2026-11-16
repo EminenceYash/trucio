@@ -1,4 +1,4 @@
-import { IntelAlert } from '../types/legitcheck';
+import { IntelAlert } from '../types/trucio';
 
 export const INTEL_ALERTS: IntelAlert[] = [
   {

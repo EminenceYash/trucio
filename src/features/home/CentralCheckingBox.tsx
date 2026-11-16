@@ -14,8 +14,9 @@ import {
   AnalysisFocus,
   AnalysisSubmission,
   CheckMode,
-} from '../../types/legitcheck';
+} from '../../types/trucio';
 import { useReducedMotionPreference } from '../../hooks/useReducedMotionPreference';
+import { prepareScreenshotUpload } from '../../utils/imageResize';
 
 interface CentralCheckingBoxProps {
   mode: CheckMode;
@@ -26,6 +27,8 @@ interface CentralCheckingBoxProps {
   isSubmitting: boolean;
   onSubmit: (submission: AnalysisSubmission) => void;
   inputRef?: React.RefObject<HTMLTextAreaElement | HTMLInputElement | null>;
+  closeSamplesSignal?: number;
+  onSamplesOpenChange?: (open: boolean) => void;
 }
 
 const MAX_CHARS = 4000;
@@ -98,6 +101,8 @@ export function CentralCheckingBox({
   isSubmitting,
   onSubmit,
   inputRef,
+  closeSamplesSignal,
+  onSamplesOpenChange,
 }: CentralCheckingBoxProps) {
   const activeTab: 'message' | 'website' | 'screenshot' =
     mode === 'website' || mode === 'screenshot' ? mode : 'message';
@@ -106,6 +111,7 @@ export function CentralCheckingBox({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const samplesWrapperRef = useRef<HTMLDivElement | null>(null);
   const [samplesOpen, setSamplesOpen] = useState(false);
+  const [openAbove, setOpenAbove] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [typedPlaceholder, setTypedPlaceholder] = useState(
@@ -118,6 +124,22 @@ export function CentralCheckingBox({
     base64: string;
   } | null>(null);
 
+  const setSamplesVisible = (next: boolean) => {
+    if (next && samplesWrapperRef.current) {
+      const rect = samplesWrapperRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenAbove(spaceBelow < 270 && rect.top > 240);
+    }
+    setSamplesOpen(next);
+    onSamplesOpenChange?.(next);
+  };
+
+  useEffect(() => {
+    if (closeSamplesSignal !== undefined && closeSamplesSignal > 0) {
+      setSamplesOpen(false);
+    }
+  }, [closeSamplesSignal]);
+
   useEffect(() => {
     if (!samplesOpen) return;
     const handleOutside = (e: MouseEvent) => {
@@ -126,10 +148,14 @@ export function CentralCheckingBox({
         !samplesWrapperRef.current.contains(e.target as Node)
       ) {
         setSamplesOpen(false);
+        onSamplesOpenChange?.(false);
       }
     };
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSamplesOpen(false);
+      if (e.key === 'Escape') {
+        setSamplesOpen(false);
+        onSamplesOpenChange?.(false);
+      }
     };
     document.addEventListener('mousedown', handleOutside);
     document.addEventListener('keydown', handleEsc);
@@ -137,7 +163,7 @@ export function CentralCheckingBox({
       document.removeEventListener('mousedown', handleOutside);
       document.removeEventListener('keydown', handleEsc);
     };
-  }, [samplesOpen]);
+  }, [samplesOpen, onSamplesOpenChange]);
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -158,30 +184,25 @@ export function CentralCheckingBox({
     return () => window.clearInterval(interval);
   }, [prefersReducedMotion]);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     setErrorMsg(null);
     const allowed = ['image/png', 'image/jpeg', 'image/webp'];
     if (!allowed.includes(file.type)) {
       setErrorMsg('Use a PNG, JPG, or WEBP image.');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMsg('Image must be under 5 MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Image must be under 10 MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : '';
-      setSelectedFile({
-        name: file.name || 'pasted-screenshot.png',
-        mimeType: file.type,
-        sizeLabel: `${Math.max(1, Math.round(file.size / 1024))} KB`,
-        base64: result,
-      });
+    try {
+      const prepared = await prepareScreenshotUpload(file);
+      setSelectedFile(prepared);
       onModeChange('screenshot');
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setErrorMsg('Could not read the selected image.');
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -501,11 +522,11 @@ export function CentralCheckingBox({
           </div>
 
           <div className="flex items-center gap-2 ml-auto sm:ml-0">
-              <button
+            <button
               type="button"
               aria-expanded={samplesOpen}
               aria-haspopup="listbox"
-              onClick={() => setSamplesOpen((prev) => !prev)}
+              onClick={() => setSamplesVisible(!samplesOpen)}
               className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                 samplesOpen
                   ? 'bg-slate-900/[0.08] text-[#0F172A]'
@@ -514,7 +535,7 @@ export function CentralCheckingBox({
             >
               <span>Samples</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform ${
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
                   samplesOpen ? 'rotate-180' : ''
                 }`}
                 aria-hidden="true"
@@ -534,19 +555,23 @@ export function CentralCheckingBox({
         </div>
       </div>
 
-      {/* Minimal Samples Dropdown Menu */}
+      {/* Viewport-Aware Samples Dropdown Menu */}
       <AnimatePresence>
         {samplesOpen && (
           <motion.div
             role="listbox"
             aria-label="Sample scam and safety examples"
-            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            initial={{ opacity: 0, y: openAbove ? 6 : -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute top-full right-0 mt-2 z-40 w-full sm:w-80 max-h-[260px] overflow-y-auto origin-top-right fluted-popover rounded-2xl p-2 text-left"
+            exit={{ opacity: 0, y: openAbove ? 4 : -4, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className={`absolute right-0 z-50 w-full sm:w-80 max-h-[min(236px,calc(100svh-190px))] overflow-y-auto fluted-popover rounded-2xl p-2 text-left ${
+              openAbove
+                ? 'bottom-full mb-2.5 origin-bottom-right'
+                : 'top-full mt-2.5 origin-top-right'
+            }`}
           >
-            <div className="px-2.5 py-1.5 text-[11px] font-medium text-slate-400">
+            <div className="px-2.5 py-1 text-[11px] font-medium text-slate-400">
               Load an example to demo
             </div>
             <div className="space-y-0.5">
@@ -561,10 +586,10 @@ export function CentralCheckingBox({
                     setErrorMsg(null);
                     onModeChange(sample.mode);
                     onTextChange(sample.content);
-                    setSamplesOpen(false);
+                    setSamplesVisible(false);
                     window.setTimeout(() => inputRef?.current?.focus(), 110);
                   }}
-                  className="w-full flex items-center justify-between gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-900/[0.05] transition-colors text-left cursor-pointer"
+                  className="w-full flex items-center justify-between gap-3 px-2.5 py-1.5 rounded-xl hover:bg-slate-900/[0.05] transition-colors text-left cursor-pointer"
                 >
                   <span className="text-xs font-medium text-[#0F172A] truncate">
                     {sample.label}

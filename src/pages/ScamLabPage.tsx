@@ -15,7 +15,7 @@ import {
   MYTH_FACT_ITEMS,
   QUIZ_QUESTIONS,
 } from '../data/labData';
-import { LabProgress } from '../types/legitcheck';
+import { LabProgress } from '../types/trucio';
 import { Button } from '../components/ui/Button';
 
 interface ScamLabPageProps {
@@ -92,19 +92,19 @@ export function ScamLabPage({
       title: 'UPI Golden Rule',
       rule: 'You NEVER enter your UPI PIN or scan a QR code to receive money.',
       sub: 'A UPI PIN only authorizes funds leaving your account. Decline unexpected collect requests.',
-      footer: 'LEGITCHECK · India & APAC Safety Card',
+      footer: 'TRUCIO · India & APAC Safety Card',
     },
     {
       title: 'The ".apk" Chat Trap',
       rule: 'Never install .apk files received over WhatsApp, Telegram, or SMS.',
       sub: 'Fake KYC & e-Challan APKs intercept banking OTPs silently. Use official stores & portals only.',
-      footer: 'LEGITCHECK · India & APAC Safety Card',
+      footer: 'TRUCIO · India & APAC Safety Card',
     },
     {
       title: 'No "Digital Arrest" Exists',
       rule: 'Police & customs never arrest citizens or verify funds over video calls.',
       sub: 'Hang up immediately and verify via 1930 (India) or your local police station.',
-      footer: 'LEGITCHECK · India & APAC Safety Card',
+      footer: 'TRUCIO · India & APAC Safety Card',
     },
   ];
 
@@ -460,7 +460,7 @@ export function ScamLabPage({
               <div className="fluted-glass rounded-2xl p-8 space-y-6">
                 <div className="flex items-center justify-between text-xs text-[#0891B2]">
                   <span className="tracking-[0.16em] uppercase font-semibold">
-                    LEGITCHECK · SAFETY BRIEF
+                    TRUCIO · SAFETY BRIEF
                   </span>
                   <Share2 className="w-4 h-4" aria-hidden="true" />
                 </div>

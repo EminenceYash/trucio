@@ -1,4 +1,4 @@
-import { AppRoute } from '../../types/legitcheck';
+import { AppRoute } from '../../types/trucio';
 
 interface FooterProps {
   onNavigate: (route: AppRoute) => void;
@@ -10,7 +10,7 @@ export function Footer({ onNavigate }: FooterProps) {
       <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs text-slate-500">
         <div className="space-y-1.5">
           <p className="text-[#0F172A] font-semibold tracking-wide">
-            LEGITCHECK · Look Legit. Look Closer.
+            TRUCIO · Look Legit. Look Closer.
           </p>
           <p>
             India Emergency Helpline: <span className="text-[#0F172A] font-mono font-medium tabular-nums">1930</span> ·{' '}

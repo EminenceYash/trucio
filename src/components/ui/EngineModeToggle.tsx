@@ -1,6 +1,6 @@
 import { Cpu, GlobeLock, RotateCw } from 'lucide-react';
 import { motion } from 'motion/react';
-import { AnalysisEngineMode } from '../../types/legitcheck';
+import { AnalysisEngineMode } from '../../types/trucio';
 
 interface EngineModeToggleProps {
   engineMode: AnalysisEngineMode;
@@ -22,16 +22,16 @@ export function EngineModeToggle({
     Icon: typeof Cpu;
   }[] = [
     {
-      id: 'local',
-      label: 'Local Mode',
-      shortTag: 'Offline NLP',
-      Icon: GlobeLock,
-    },
-    {
       id: 'ai',
       label: 'AI Mode',
       shortTag: 'Gemini',
       Icon: Cpu,
+    },
+    {
+      id: 'local',
+      label: 'Local Mode',
+      shortTag: 'Offline NLP',
+      Icon: GlobeLock,
     },
   ];
 
@@ -71,7 +71,7 @@ export function EngineModeToggle({
               {active && (
                 <motion.span
                   layoutId={compact ? 'engine-pill-compact' : 'engine-pill-home'}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.6 }}
                   className="absolute inset-0 rounded-full bg-[#F8FAFC] border border-[#0891B2]/35 shadow-2xs"
                   aria-hidden="true"
                 />

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Menu, ShieldAlert, X } from 'lucide-react';
-import { AppRoute } from '../../types/legitcheck';
+import { AppRoute } from '../../types/trucio';
 
 interface NavbarProps {
   activeRoute: AppRoute;
@@ -56,7 +56,7 @@ export function Navbar({ activeRoute, onNavigate }: NavbarProps) {
               <circle cx="12" cy="11.5" r="2.6" stroke="#0891B2" strokeWidth="1.8" />
             </svg>
             <span className="text-sm font-semibold tracking-[0.14em] uppercase">
-              LEGITCHECK
+              TRUCIO
             </span>
           </button>
 
@@ -77,7 +77,11 @@ export function Navbar({ activeRoute, onNavigate }: NavbarProps) {
                 >
                   {item.label}
                   {isActive && (
-                    <span className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-[#0891B2]" />
+                    <motion.span
+                      layoutId="navbar-active-underline"
+                      transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                      className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-[#0891B2]"
+                    />
                   )}
                 </button>
               );

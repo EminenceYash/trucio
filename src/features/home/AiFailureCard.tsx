@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { AlertCircle, GlobeLock, RotateCcw, X } from 'lucide-react';
-import { AiAnalysisFailure } from '../../types/legitcheck';
+import { AiAnalysisFailure } from '../../types/trucio';
 
 interface AiFailureCardProps {
   failure: AiAnalysisFailure;

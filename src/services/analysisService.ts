@@ -7,7 +7,7 @@ import {
   ExtractedEvidence,
   ScamCategory,
   WarningIndicator,
-} from '../types/legitcheck';
+} from '../types/trucio';
 import { runLocalNlpDetection } from '../engine/local/engine';
 import { SCAM_CATEGORY_LABELS } from '../engine/local/rules';
 
@@ -44,6 +44,57 @@ export type EngineRunOutcome =
   | { ok: true; result: AnalysisResult }
   | { ok: false; failure: AiAnalysisFailure };
 
+export interface LiveDomainLookupResponse {
+  ok: boolean;
+  hostname?: string;
+  dns?: {
+    resolved: boolean;
+    aRecords: string[];
+    mxRecords: string[];
+    hasSpf: boolean;
+    hasDmarc: boolean;
+    error?: string;
+  };
+  rdap?: {
+    available: boolean;
+    registrar?: string;
+    registeredAt?: string;
+    expiresAt?: string;
+    ageDays?: number;
+    statuses: string[];
+    note?: string;
+  };
+  message?: string;
+}
+
+export async function fetchLiveDomainLookup(
+  domain: string
+): Promise<LiveDomainLookupResponse> {
+  try {
+    const res = await fetch(
+      `/api/domain-lookup?domain=${encodeURIComponent(domain)}`,
+      { method: 'GET' }
+    );
+    const json = await res.json();
+    if (!res.ok || !json?.ok) {
+      return {
+        ok: false,
+        message:
+          typeof json?.message === 'string'
+            ? json.message
+            : 'Live DNS & RDAP lookup could not verify this domain.',
+      };
+    }
+    return json as LiveDomainLookupResponse;
+  } catch {
+    return {
+      ok: false,
+      message:
+        'Live DNS & RDAP lookup is unreachable right now. Structural parsing above remains available offline.',
+    };
+  }
+}
+
 export async function fetchAiHealthStatus(): Promise<{
   reachable: boolean;
   geminiConfigured: boolean;
@@ -51,6 +102,10 @@ export async function fetchAiHealthStatus(): Promise<{
   try {
     const res = await fetch('/api/health', { method: 'GET' });
     if (!res.ok) return { reachable: false, geminiConfigured: false };
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return { reachable: false, geminiConfigured: false };
+    }
     const json = await res.json();
     return {
       reachable: Boolean(json?.ok),
@@ -92,6 +147,32 @@ export async function runAiAnalysisMode(
       }),
     });
 
+    if (response.status === 413) {
+      return {
+        ok: false,
+        failure: {
+          errorCode: 'server-error',
+          message:
+            'Screenshot file is too large for the serverless upload limit. Crop the image or switch to Local Mode.',
+          retryable: false,
+          submission,
+        },
+      };
+    }
+
+    if (response.status === 504) {
+      return {
+        ok: false,
+        failure: {
+          errorCode: 'server-error',
+          message:
+            'AI Mode timed out waiting for the model response. Retry AI Mode or switch to Local Mode.',
+          retryable: true,
+          submission,
+        },
+      };
+    }
+
     let payload: Record<string, unknown> | null = null;
     try {
       payload = await response.json();
@@ -99,9 +180,12 @@ export async function runAiAnalysisMode(
       return {
         ok: false,
         failure: {
-          errorCode: 'malformed',
-          message: 'Server returned an unreadable response.',
-          retryable: true,
+          errorCode: response.status === 404 ? 'server-error' : 'malformed',
+          message:
+            response.status === 404
+              ? 'AI Mode backend endpoint (/api/analyze) was not found on this deployment. Switch to Local Mode to analyze offline.'
+              : 'Server returned an unreadable response. Retry AI Mode or switch to Local Mode.',
+          retryable: response.status !== 404,
           submission,
         },
       };

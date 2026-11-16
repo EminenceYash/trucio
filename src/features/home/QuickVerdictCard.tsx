@@ -12,7 +12,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { INTEL_ALERTS } from '../../data/intelData';
-import { AnalysisResult, AppRoute } from '../../types/legitcheck';
+import { AnalysisResult, AppRoute } from '../../types/trucio';
 import { CautionIndicator } from '../../components/ui/StatusBadge';
 import { EngineAttributionLine } from '../../components/ui/EngineModeToggle';
 
@@ -45,7 +45,7 @@ export function QuickVerdictCard({
 
   const handleCopy = async () => {
     const text = [
-      `LEGITCHECK (${result.sourceLabel}): ${result.cautionHeadline} — ${result.scamCategoryLabel}`,
+      `TRUCIO (${result.sourceLabel}): ${result.cautionHeadline} — ${result.scamCategoryLabel}`,
       result.summary,
       result.warningIndicators.length > 0
         ? `Flags: ${result.warningIndicators.map((w) => w.title).join('; ')}`
@@ -72,12 +72,12 @@ export function QuickVerdictCard({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `legitcheck-${result.id}.json`;
+    link.download = `trucio-${result.id}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    onNotify('JSON exported', `Saved legitcheck-${result.id}.json`);
+    onNotify('JSON exported', `Saved trucio-${result.id}.json`);
   };
 
   const relatedAlerts = INTEL_ALERTS.filter((a) =>
@@ -92,7 +92,7 @@ export function QuickVerdictCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       className="w-full max-w-2xl mx-auto text-left"
     >
       <div className="fluted-glass rounded-[22px] p-5 sm:p-6 space-y-4">
@@ -218,7 +218,7 @@ export function QuickVerdictCard({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               className="pt-3 border-t border-slate-200/75 space-y-3"
             >
               <ol className="space-y-2 text-xs sm:text-[13px] text-[#0F172A] leading-relaxed list-decimal pl-4">
@@ -257,7 +257,7 @@ export function QuickVerdictCard({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               className="pt-3 border-t border-slate-200/75 space-y-4 text-xs"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 text-slate-500">

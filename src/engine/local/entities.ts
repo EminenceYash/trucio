@@ -1,4 +1,4 @@
-import { ExtractedEvidence, WarningIndicator } from '../../types/legitcheck';
+import { ExtractedEvidence, WarningIndicator } from '../../types/trucio';
 
 export const SHORTENER_DOMAINS = [
   'bit.ly',

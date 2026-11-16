@@ -15,7 +15,7 @@ import {
   AnalysisSubmission,
   AppRoute,
   CheckMode,
-} from '../types/legitcheck';
+} from '../types/trucio';
 
 interface HomePageProps {
   mode: CheckMode;
@@ -68,6 +68,7 @@ export function HomePage({
   const bottomPopoversRef = useRef<HTMLDivElement | null>(null);
   const [recentOpen, setRecentOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [closeSamplesSignal, setCloseSamplesSignal] = useState(0);
 
   useEffect(() => {
     if (!recentOpen && !infoOpen) return;
@@ -105,7 +106,11 @@ export function HomePage({
       <BackgroundVideo />
 
       {/* Centered Single-Screen Check Experience */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-24 pb-16">
+      <div
+        className={`relative flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-20 pb-16 ${
+          recentOpen || infoOpen ? 'z-10' : 'z-30'
+        }`}
+      >
         <div className="mx-auto w-full max-w-3xl flex flex-col items-center justify-center text-center gap-6">
           <AnimatePresence mode="wait" initial={false}>
             {!result && !aiFailure && !isSubmitting && (
@@ -114,7 +119,7 @@ export function HomePage({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                 className="w-full space-y-5"
               >
                 <div className="max-w-2xl mx-auto">
@@ -145,6 +150,13 @@ export function HomePage({
                   isSubmitting={isSubmitting}
                   onSubmit={onSubmit}
                   inputRef={inputRef}
+                  closeSamplesSignal={closeSamplesSignal}
+                  onSamplesOpenChange={(open) => {
+                    if (open) {
+                      setRecentOpen(false);
+                      setInfoOpen(false);
+                    }
+                  }}
                 />
               </motion.div>
             )}
@@ -192,7 +204,10 @@ export function HomePage({
       </div>
 
       {/* Whisper-Quiet Bottom Bar + Popovers */}
-      <div ref={bottomPopoversRef} className="relative z-30">
+      <div
+        ref={bottomPopoversRef}
+        className={`relative ${recentOpen || infoOpen ? 'z-40' : 'z-20'}`}
+      >
         <div className="px-6 pb-5 flex items-center justify-between gap-4 text-[11px] text-slate-500 max-w-5xl w-full mx-auto">
           <button
             type="button"
@@ -209,6 +224,7 @@ export function HomePage({
                 aria-expanded={recentOpen}
                 onClick={() => {
                   setInfoOpen(false);
+                  setCloseSamplesSignal((n) => n + 1);
                   setRecentOpen((prev) => !prev);
                 }}
                 className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#0F172A] transition-colors cursor-pointer"
@@ -223,6 +239,7 @@ export function HomePage({
               aria-expanded={infoOpen}
               onClick={() => {
                 setRecentOpen(false);
+                setCloseSamplesSignal((n) => n + 1);
                 setInfoOpen((prev) => !prev);
               }}
               className="inline-flex items-center gap-1 text-slate-500 hover:text-[#0F172A] transition-colors cursor-pointer"
@@ -279,7 +296,7 @@ export function HomePage({
           {infoOpen && (
             <motion.div
               role="dialog"
-              aria-label="About LEGITCHECK"
+              aria-label="About TRUCIO"
               initial={{ opacity: 0, y: 8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.97 }}
@@ -289,7 +306,7 @@ export function HomePage({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold tracking-[0.14em] uppercase text-[#0F172A]">
-                    LEGITCHECK
+                    TRUCIO
                   </p>
                   <p className="text-[11px] text-[#0891B2] font-medium">
                     Look Legit. Look Closer.
@@ -306,7 +323,7 @@ export function HomePage({
               </div>
 
               <p className="text-xs text-slate-700 leading-relaxed">
-                LEGITCHECK helps you check suspicious messages, lookalike links, payment requests, and screenshots before acting. It flags common fraud tactics, extracts indicators, and surfaces practical next steps for India &amp; APAC.
+                TRUCIO helps you check suspicious messages, lookalike links, payment requests, and screenshots before acting. It flags common fraud tactics, extracts indicators, and surfaces practical next steps for India &amp; APAC.
               </p>
 
               <p className="text-[11px] text-slate-500 leading-relaxed">

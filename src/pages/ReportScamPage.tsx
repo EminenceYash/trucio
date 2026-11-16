@@ -9,7 +9,7 @@ import {
   ShieldAlert,
   Trash2,
 } from 'lucide-react';
-import { IntelCategory, ScamReport } from '../types/legitcheck';
+import { IntelCategory, ScamReport } from '../types/trucio';
 import { redactSensitiveInfo } from '../utils/storage';
 import { Button } from '../components/ui/Button';
 
@@ -111,7 +111,7 @@ export function ReportScamPage({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `legitcheck-reports-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `trucio-reports-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

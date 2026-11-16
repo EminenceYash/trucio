@@ -1,4 +1,4 @@
-import { SafetyGuide } from '../types/legitcheck';
+import { SafetyGuide } from '../types/trucio';
 
 export const SAFETY_GUIDES: SafetyGuide[] = [
   {

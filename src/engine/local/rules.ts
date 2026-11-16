@@ -1,4 +1,4 @@
-import { ScamCategory } from '../../types/legitcheck';
+import { ScamCategory } from '../../types/trucio';
 
 export type RuleFamily =
   | 'urgency'
@@ -309,7 +309,7 @@ export const SIGNAL_RULES: SignalRule[] = [
     explanation:
       'Short deadlines ("tonight", "within 2 hours", "final warning") are used to rush decisions before you can verify independently.',
     whyItMatters:
-      'Urgency alone can appear in benign billing reminders, so LEGITCHECK weighs it alongside unverified links, credential prompts, or fee demands.',
+      'Urgency alone can appear in benign billing reminders, so TRUCIO weighs it alongside unverified links, credential prompts, or fee demands.',
   },
 
   // 13. Shopping / Marketplace Payment & Delivery Fraud

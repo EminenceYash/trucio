@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MotionConfig, motion, useMotionValue, useSpring } from 'motion/react';
 import { Navbar } from './components/ui/Navbar';
 import { Footer } from './components/ui/Footer';
@@ -9,6 +9,7 @@ import { ReportScamPage } from './pages/ReportScamPage';
 import { ScamIntelPage } from './pages/ScamIntelPage';
 import { SafetyCentrePage } from './pages/SafetyCentrePage';
 import { ScamLabPage } from './pages/ScamLabPage';
+import AdvancedWorkspacePage from './pages/AdvancedWorkspacePage';
 import {
   AiAnalysisFailure,
   AnalysisEngineMode,
@@ -21,7 +22,7 @@ import {
   SavedInvestigation,
   ScamReport,
   ToastMessage,
-} from './types/legitcheck';
+} from './types/trucio';
 import {
   fetchAiHealthStatus,
   runDualEngineAnalysis,
@@ -43,9 +44,6 @@ import {
   saveReport,
 } from './utils/storage';
 
-const AdvancedWorkspacePage = React.lazy(
-  () => import('./pages/AdvancedWorkspacePage')
-);
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>('home');
@@ -89,9 +87,6 @@ export default function App() {
     fetchAiHealthStatus().then(({ geminiConfigured }) => {
       if (!active) return;
       setAiConfigured(geminiConfigured);
-      if (!geminiConfigured && loadSavedEngineMode() === null) {
-        setEngineMode('local');
-      }
     });
     return () => {
       active = false;
@@ -105,8 +100,8 @@ export default function App() {
   const mouseY = useMotionValue(
     typeof window !== 'undefined' ? window.innerHeight * 0.35 : 320
   );
-  const smoothX = useSpring(mouseX, { stiffness: 120, damping: 24, mass: 0.5 });
-  const smoothY = useSpring(mouseY, { stiffness: 120, damping: 24, mass: 0.5 });
+  const smoothX = useSpring(mouseX, { stiffness: 95, damping: 22, mass: 0.55 });
+  const smoothY = useSpring(mouseY, { stiffness: 95, damping: 22, mass: 0.55 });
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -315,7 +310,14 @@ export default function App() {
           }}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 flex flex-col">
+          <motion.div
+            key={route}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col"
+          >
           {route === 'home' && (
             <HomePage
               mode={homeMode}
@@ -410,26 +412,19 @@ export default function App() {
           )}
 
           {route === 'advanced' && (
-            <Suspense
-              fallback={
-                <div className="relative z-10 min-h-[100svh] pt-32 px-6 text-center text-sm text-slate-600">
-                  Loading Tools...
-                </div>
+            <AdvancedWorkspacePage
+              initialTab={advancedInitialTab}
+              savedInvestigations={savedInvestigations}
+              onSaveInvestigation={(item) =>
+                setSavedInvestigations(saveInvestigation(item))
               }
-            >
-              <AdvancedWorkspacePage
-                initialTab={advancedInitialTab}
-                savedInvestigations={savedInvestigations}
-                onSaveInvestigation={(item) =>
-                  setSavedInvestigations(saveInvestigation(item))
-                }
-                onRemoveInvestigation={(id) =>
-                  setSavedInvestigations(removeInvestigation(id))
-                }
-                onNotify={(title, desc) => pushToast(title, desc, 'success')}
-              />
-            </Suspense>
+              onRemoveInvestigation={(id) =>
+                setSavedInvestigations(removeInvestigation(id))
+              }
+              onNotify={(title, desc) => pushToast(title, desc, 'success')}
+            />
           )}
+          </motion.div>
         </main>
 
         {route !== 'home' && <Footer onNavigate={(r) => navigate(r)} />}

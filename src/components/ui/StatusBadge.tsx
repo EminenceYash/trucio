@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Info, ShieldAlert } from 'lucide-react';
-import { CautionLevel, IntelVerificationStatus } from '../../types/legitcheck';
+import { CautionLevel, IntelVerificationStatus } from '../../types/trucio';
 
 export function CautionIndicator({ level }: { level: CautionLevel }) {
   const map: Record<

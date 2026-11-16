@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
+import { motion } from 'motion/react';
+import glassBackdropUrl from '../../assets/images/glass-backdrop.jpg';
 import { useReducedMotionPreference } from '../../hooks/useReducedMotionPreference';
 
 const MUX_STREAM_URL =
@@ -30,7 +32,7 @@ export function BackgroundVideo({ className = '' }: BackgroundVideoProps) {
       if (!cancelled) {
         setVideoReady(true);
         video.play().catch(() => {
-          // Autoplay blocked silently; fallback remains visible
+          // Autoplay blocked silently; static glass backdrop remains visible
         });
       }
     };
@@ -83,16 +85,28 @@ export function BackgroundVideo({ className = '' }: BackgroundVideoProps) {
       aria-hidden="true"
       className={`pointer-events-none absolute inset-0 z-0 overflow-hidden ${className}`}
     >
-      {/* Cool subtle atmospheric tint */}
+      {/* Translucent porcelain fluted glass artwork blended into the canvas */}
+      <motion.img
+        src={glassBackdropUrl}
+        alt=""
+        loading="eager"
+        decoding="async"
+        initial={prefersReducedMotion ? { opacity: 0.62 } : { opacity: 0, scale: 1.025 }}
+        animate={{ opacity: 0.62, scale: 1 }}
+        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-0 h-full w-full object-cover object-center will-change-transform select-none"
+      />
+
+      {/* Luminous airy veil over the center focal zone for crisp headline & input contrast */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 72% 56% at 50% 28%, rgba(226, 232, 240, 0.42) 0%, transparent 100%)',
+            'radial-gradient(ellipse 68% 58% at 50% 48%, rgba(248, 250, 252, 0.78) 0%, rgba(248, 250, 252, 0.44) 55%, rgba(248, 250, 252, 0.14) 100%)',
         }}
       />
 
-      {/* Ambient Mux HLS video softly diffused behind frosted glass */}
+      {/* Ambient Mux HLS video softly diffused behind frosted glass when active */}
       {shouldRenderVideo && (
         <video
           ref={videoRef}
@@ -101,13 +115,22 @@ export function BackgroundVideo({ className = '' }: BackgroundVideoProps) {
           loop
           playsInline
           className={`absolute inset-0 h-full w-full object-cover invert hue-rotate-180 saturate-125 blur-[4px] mix-blend-multiply transition-opacity duration-1000 ${
-            videoReady ? 'opacity-14' : 'opacity-0'
+            videoReady ? 'opacity-10' : 'opacity-0'
           }`}
         />
       )}
 
       {/* Soft-edged architectural vertical glass flutes */}
-      <div className="absolute inset-0 fluted-ribs opacity-70" />
+      <div className="absolute inset-0 fluted-ribs opacity-60" />
+
+      {/* Gentle bottom fade into clean porcelain footer bar */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-28"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(248, 250, 252, 0.9) 0%, rgba(248, 250, 252, 0) 100%)',
+        }}
+      />
     </div>
   );
 }
