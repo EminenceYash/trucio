@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.vite/
+.DS_Store
+*.log
+*.tsbuildinfo
+.env*
+!.env.example
+.aistudio/
+.playwright-cli/
+playwright-report/
+test-results/

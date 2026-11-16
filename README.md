@@ -74,12 +74,13 @@ It operates on a **Dual Analysis Engine** architecture inspired by independent l
 
 ```text
 ├── api/
+│   ├── _lib/
+│   │   ├── domainLookup.ts          # SSRF-safe DNS-over-HTTPS & RDAP registry lookup
+│   │   ├── env.ts                   # Environment variable sanitization & key check
+│   │   └── geminiAnalyze.ts         # Shared Gemini analyzer with schema validation & model fallback
 │   ├── analyze.ts                   # Vercel Serverless Function for POST /api/analyze (AI Mode)
 │   ├── domain-lookup.ts             # Vercel Serverless Function for GET /api/domain-lookup (Live DNS & RDAP)
 │   └── health.ts                    # Vercel Serverless Function for GET /api/health
-├── server/
-│   ├── domainLookup.ts              # Shared SSRF-safe DNS-over-HTTPS & RDAP registry lookup
-│   └── geminiAnalyze.ts             # Shared Gemini analyzer with schema validation & model fallback
 ├── server.ts                        # Local/Node Express server serving Vite/dist + /api/* routes
 ├── vercel.json                      # Vercel build, serverless duration, and SPA rewrite exclusions
 ├── index.html                       # App HTML entry point & OpenGraph metadata
@@ -168,7 +169,8 @@ TRUCIO includes ready-to-deploy Vercel Serverless Functions (`api/analyze.ts`, `
 3. In **Vercel Project Settings → Environment Variables**, add:
    - `GEMINI_API_KEY` = your Google Gemini API key
    - `GEMINI_MODEL` = `gemini-2.5-flash` *(optional — if omitted, the server automatically falls back to `gemini-2.5-flash` when used with a standard Google Gemini API key)*
-4. **Deploying without an API key:** AI Mode stays selected as the default mode; if `GEMINI_API_KEY` is omitted on the server, `EngineModeToggle` shows a configuration hint and submitting offers a 1-click prompt to switch directly to offline **Local Mode**.
+4. **Redeploy after saving environment variables:** Vercel injects new or edited Environment Variables only into new deployments—if you added `GEMINI_API_KEY` after deploying, open **Deployments → Redeploy** on Vercel so your serverless functions pick it up.
+5. **Deploying without an API key:** AI Mode stays selected as the default mode; if `GEMINI_API_KEY` is omitted or not yet redeployed, `EngineModeToggle` indicates the server state and submitting offers a 1-click prompt to switch directly to offline **Local Mode**.
 
 ---
 

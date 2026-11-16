@@ -5,6 +5,7 @@ import { AnalysisEngineMode } from '../../types/trucio';
 interface EngineModeToggleProps {
   engineMode: AnalysisEngineMode;
   onChange: (mode: AnalysisEngineMode) => void;
+  aiReachable?: boolean | null;
   aiConfigured?: boolean | null;
   compact?: boolean;
 }
@@ -12,6 +13,7 @@ interface EngineModeToggleProps {
 export function EngineModeToggle({
   engineMode,
   onChange,
+  aiReachable,
   aiConfigured,
   compact = false,
 }: EngineModeToggleProps) {
@@ -35,11 +37,17 @@ export function EngineModeToggle({
     },
   ];
 
+  const isBackendUnreachable = engineMode === 'ai' && aiReachable === false;
+  const isMissingKey =
+    engineMode === 'ai' && aiReachable !== false && aiConfigured === false;
+
   const description =
     engineMode === 'local'
       ? 'Offline on-device NLP rules · Nothing leaves your browser'
-      : aiConfigured === false
-      ? 'Server Gemini key missing · Switch to Local Mode or set GEMINI_API_KEY'
+      : isBackendUnreachable
+      ? 'AI API endpoint unreachable on this deployment · Switch to Local Mode'
+      : isMissingKey
+      ? 'Server GEMINI_API_KEY not active · Add key, redeploy Vercel, or use Local Mode'
       : 'Contextual text & screenshot inspection via server-side Gemini';
 
   return (
@@ -97,7 +105,7 @@ export function EngineModeToggle({
 
       <p
         className={`text-[11px] leading-snug text-center ${
-          engineMode === 'ai' && aiConfigured === false
+          isBackendUnreachable || isMissingKey
             ? 'text-amber-700 font-medium'
             : 'text-slate-500'
         }`}

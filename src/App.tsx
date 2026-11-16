@@ -50,6 +50,7 @@ export default function App() {
   const [engineMode, setEngineMode] = useState<AnalysisEngineMode>(
     () => loadSavedEngineMode() ?? 'ai'
   );
+  const [aiReachable, setAiReachable] = useState<boolean | null>(null);
   const [aiConfigured, setAiConfigured] = useState<boolean | null>(null);
 
   const [homeMode, setHomeMode] = useState<CheckMode>('message');
@@ -84,8 +85,9 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
-    fetchAiHealthStatus().then(({ geminiConfigured }) => {
+    fetchAiHealthStatus().then(({ reachable, geminiConfigured }) => {
       if (!active) return;
+      setAiReachable(reachable);
       setAiConfigured(geminiConfigured);
     });
     return () => {
@@ -324,6 +326,7 @@ export default function App() {
               onModeChange={setHomeMode}
               engineMode={engineMode}
               onEngineModeChange={handleEngineModeChange}
+              aiReachable={aiReachable}
               aiConfigured={aiConfigured}
               focus={homeFocus}
               textValue={homeInputText}
@@ -360,6 +363,7 @@ export default function App() {
               onModeChange={setAnalysisMode}
               engineMode={engineMode}
               onEngineModeChange={handleEngineModeChange}
+              aiReachable={aiReachable}
               aiConfigured={aiConfigured}
               result={analysisResult}
               aiFailure={analysisAiFailure}

@@ -2,11 +2,9 @@ import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import {
-  isGeminiConfigured,
-  performGeminiAnalysis,
-} from './server/geminiAnalyze';
-import { lookupLiveDomainIntel } from './server/domainLookup';
+import { isGeminiConfigured } from './api/_lib/env.js';
+import { performGeminiAnalysis } from './api/_lib/geminiAnalyze.js';
+import { lookupLiveDomainIntel } from './api/_lib/domainLookup.js';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();

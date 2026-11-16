@@ -22,6 +22,7 @@ interface HomePageProps {
   onModeChange: (mode: CheckMode) => void;
   engineMode: AnalysisEngineMode;
   onEngineModeChange: (engine: AnalysisEngineMode) => void;
+  aiReachable?: boolean | null;
   aiConfigured: boolean | null;
   focus: AnalysisFocus;
   textValue: string;
@@ -46,6 +47,7 @@ export function HomePage({
   onModeChange,
   engineMode,
   onEngineModeChange,
+  aiReachable,
   aiConfigured,
   focus,
   textValue,
@@ -138,6 +140,7 @@ export function HomePage({
                 <EngineModeToggle
                   engineMode={engineMode}
                   onChange={onEngineModeChange}
+                  aiReachable={aiReachable}
                   aiConfigured={aiConfigured}
                 />
 

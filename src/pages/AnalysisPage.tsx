@@ -32,6 +32,7 @@ interface AnalysisPageProps {
   onModeChange: (mode: CheckMode) => void;
   engineMode: AnalysisEngineMode;
   onEngineModeChange: (engine: AnalysisEngineMode) => void;
+  aiReachable?: boolean | null;
   aiConfigured: boolean | null;
   result: AnalysisResult | null;
   aiFailure: AiAnalysisFailure | null;
@@ -90,6 +91,7 @@ export function AnalysisPage({
   onModeChange,
   engineMode,
   onEngineModeChange,
+  aiReachable,
   aiConfigured,
   result,
   aiFailure,
@@ -208,6 +210,7 @@ export function AnalysisPage({
             <EngineModeToggle
               engineMode={engineMode}
               onChange={onEngineModeChange}
+              aiReachable={aiReachable}
               aiConfigured={aiConfigured}
               compact
             />
